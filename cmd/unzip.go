@@ -1,0 +1,112 @@
+/*
+Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+
+*/
+package cmd
+
+import (
+	// "fmt"
+    "compress/gzip"
+    "fmt"
+    "io"
+    "os"
+    // "strings"
+	"github.com/spf13/cobra"
+	"fileCompression/utils" // replace with your module path
+)
+
+
+
+
+func parseUnzipFlags(cmd *cobra.Command) (string, string, error) {
+	fileName, err := cmd.Flags().GetString("file")
+	if err != nil {
+		return "", "", err
+	}
+
+	outputName, err := cmd.Flags().GetString("output")
+	if err != nil {
+		return "", "", err
+	}
+
+	if outputName == "" {
+		outputName = "output.txt" // Default output name if not provided
+	}
+
+	return fileName, outputName, nil
+}
+
+// unzipCmd represents the unzip command
+var unzipCmd = &cobra.Command{
+	Use:   "unzip",
+	Short: "A brief description of your command",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("unzip called")
+
+		file_path, output_path, err := parseUnzipFlags(cmd)
+
+		if err != nil {
+			fmt.Println("Error:", err)
+			return // just exit the function early
+		}
+		fmt.Println("Unzipping:", file_path)
+		if output_path != "" {
+			fmt.Println("Output:", output_path)
+		}
+
+		println("Opening compressed file:", file_path)
+		fmt.Println("Please wait while the file is being unzipped...")
+
+		file, err := os.Open(file_path)
+		utils.ErrorChecker(err)
+		defer file.Close()
+
+		fmt.Println("File opened successfully:", file_path)
+		reader, err := gzip.NewReader(file)
+		if err != nil {
+			fmt.Println("Error creating gzip reader:", err)
+			return
+		}
+		defer reader.Close()
+
+		
+		fmt.Println("Creating output file:", output_path)
+		writer, err := os.Create(output_path)
+
+		utils.ErrorChecker(err)
+		defer writer.Close()
+
+		_, err = io.Copy(writer, reader)
+		utils.ErrorChecker(err)
+
+		
+		fmt.Println("File unzipped successfully to:", output_path)
+		fmt.Println("Unzip operation completed successfully.")
+
+
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(unzipCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// unzipCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// unzipCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	unzipCmd.Flags().StringP("file", "f", "", "File to unzip")
+	unzipCmd.Flags().StringP("output", "o", "", "Output file name (default is 'output.txt')")
+	unzipCmd.MarkFlagRequired("file") // Make the file flag required
+}

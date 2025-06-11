@@ -10,18 +10,13 @@ import (
     "compress/gzip"
     "io/ioutil"
     "os"
-	"log"
+	// "log"
 	"github.com/spf13/cobra"
+	"fileCompression/utils"
 )
 
-// checks for error
-func ErrorChecker(err error)  {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
-func parseFlags(cmd *cobra.Command) (string, string, error) {
+func parseCompressFlags(cmd *cobra.Command) (string, string, error) {
 	fileName, err := cmd.Flags().GetString("file")
 	if err != nil {
 		return "", "", err
@@ -53,7 +48,7 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Compress called")
 
-		file_path, output_path, err := parseFlags(cmd)
+		file_path, output_path, err := parseCompressFlags(cmd)
 
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -69,7 +64,7 @@ to quickly create a Cobra application.`,
 		file, err := os.Open(file_path) // Open the file for reading
 		
 		println(err)
-		ErrorChecker(err)
+		utils.ErrorChecker(err)
 
 		println("Please wait while the file is being compressed...")
 
@@ -81,12 +76,12 @@ to quickly create a Cobra application.`,
 		// Close the file after reading
 		err = file.Close()
 
-		ErrorChecker(err) // Check for errors when closing the file
+		utils.ErrorChecker(err) // Check for errors when closing the file
 
 		// Create the output file
 		println("Creating output file:", output_path)
 		file, err = os.Create(output_path) // Create the output file for writing
-		ErrorChecker(err)
+		utils.ErrorChecker(err)
 		
 		w := gzip.NewWriter(file) // Write to the gzip writer
 
