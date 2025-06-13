@@ -4,7 +4,6 @@ package main
 
 import "fileCompression/cmd"
 
-
 func main() {
 	cmd.Execute()
 }

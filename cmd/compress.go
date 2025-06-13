@@ -6,16 +6,17 @@ package cmd
 
 import (
 	"fmt"
-    "bufio"
-    "compress/gzip"
-    "io/ioutil"
-    "os"
-	// "log"
 	"github.com/spf13/cobra"
 	"fileCompression/utils"
-)
+	"fileCompression/file/compression"
+	)
 
 
+/*
+* Parse the flags for the compress command
+* Returns the file name and output name
+* Returns an error if any flag is invalid
+*/
 func parseCompressFlags(cmd *cobra.Command) (string, string, error) {
 	fileName, err := cmd.Flags().GetString("file")
 	if err != nil {
@@ -35,6 +36,7 @@ func parseCompressFlags(cmd *cobra.Command) (string, string, error) {
 }
 
 
+
 // compressCmd represents the compress command
 var compressCmd = &cobra.Command{
 	Use:   "compress",
@@ -46,7 +48,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Compress called")
+		fmt.Println("Compress command called")
 
 		file_path, output_path, err := parseCompressFlags(cmd)
 
@@ -54,43 +56,16 @@ to quickly create a Cobra application.`,
 			fmt.Println("Error:", err)
 			return // just exit the function early
 		}
-		fmt.Println("Compressing:", file_path)
+		utils.ErrorChecker(err)
+
 		if output_path != "" {
 			fmt.Println("Output:", output_path)
+		} else {
+			fmt.Println("No output file specified, using default: output.gz")
+			output_path = "./output.gz"
 		}
 
-		println("Opening file:", file_path)
-
-		file, err := os.Open(file_path) // Open the file for reading
-		
-		println(err)
-		utils.ErrorChecker(err)
-
-		println("Please wait while the file is being compressed...")
-
-
-		read := bufio.NewReader(file)
-		
-		data, err := ioutil.ReadAll(read)
-
-		// Close the file after reading
-		err = file.Close()
-
-		utils.ErrorChecker(err) // Check for errors when closing the file
-
-		// Create the output file
-		println("Creating output file:", output_path)
-		file, err = os.Create(output_path) // Create the output file for writing
-		utils.ErrorChecker(err)
-		
-		w := gzip.NewWriter(file) // Write to the gzip writer
-
-		w.Write(data)
-
-		// gives a notification when file compression is done
-		fmt.Println("File compressed successfully")
-
-		w.Close()
+		compression.Compress(file_path, output_path) 
 	},
 }
 

@@ -5,14 +5,9 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	// "fmt"
-    "compress/gzip"
     "fmt"
-    "io"
-    "os"
-    // "strings"
 	"github.com/spf13/cobra"
-	"fileCompression/utils" // replace with your module path
+	"fileCompression/file/unzip"
 )
 
 
@@ -58,36 +53,11 @@ to quickly create a Cobra application.`,
 		fmt.Println("Unzipping:", file_path)
 		if output_path != "" {
 			fmt.Println("Output:", output_path)
+		} else {
+			output_path = "./data.txt"
 		}
 
-		println("Opening compressed file:", file_path)
-		fmt.Println("Please wait while the file is being unzipped...")
-
-		file, err := os.Open(file_path)
-		utils.ErrorChecker(err)
-		defer file.Close()
-
-		fmt.Println("File opened successfully:", file_path)
-		reader, err := gzip.NewReader(file)
-		if err != nil {
-			fmt.Println("Error creating gzip reader:", err)
-			return
-		}
-		defer reader.Close()
-
-		
-		fmt.Println("Creating output file:", output_path)
-		writer, err := os.Create(output_path)
-
-		utils.ErrorChecker(err)
-		defer writer.Close()
-
-		_, err = io.Copy(writer, reader)
-		utils.ErrorChecker(err)
-
-		
-		fmt.Println("File unzipped successfully to:", output_path)
-		fmt.Println("Unzip operation completed successfully.")
+		unzip.Unzip(file_path, output_path)
 
 
 	},
